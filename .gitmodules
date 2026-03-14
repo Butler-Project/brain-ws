@@ -1,0 +1,28 @@
+[submodule "src/agent_node"]
+	path = src/agent_node
+	url = git@github.com:Butler-Project/butler-agent-node.git
+	branch = main
+[submodule "src/tts_node"]
+	path = src/tts_node
+	url = git@github.com:Butler-Project/butler-tts-node.git
+	branch = main
+[submodule "src/asr_node"]
+	path = src/asr_node
+	url = git@github.com:Butler-Project/butler-asr-node.git
+	branch = main
+[submodule "src/navigation_node"]
+	path = src/navigation_node
+	url = git@github.com:Butler-Project/butler-navigation-node.git
+	branch = main
+[submodule "src/database_node"]
+	path = src/database_node
+	url = git@github.com:Butler-Project/butler-database-node.git
+	branch = main
+[submodule "src/vision_node"]
+	path = src/vision_node
+	url = git@github.com:Butler-Project/butler-vision-node.git
+	branch = main
+[submodule "src/brain_launch"]
+	path = src/brain_launch
+	url = git@github.com:Butler-Project/butler-brain-launch.git
+	branch = main
