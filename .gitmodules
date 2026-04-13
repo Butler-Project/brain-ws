@@ -26,3 +26,7 @@
 	path = src/brain_launch
 	url = git@github.com:Butler-Project/butler-brain-launch.git
 	branch = main
+[submodule "src/interfaces"]
+	path = src/interfaces
+	url = https://github.com/Butler-Project/interfaces
+	branch = main
