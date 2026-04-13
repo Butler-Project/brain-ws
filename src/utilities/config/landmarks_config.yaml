@@ -1,0 +1,9 @@
+landmarks_publisher:
+  ros__parameters:
+    landmarks_file: "/home/operador/slam/landmarks.yaml"
+    marker_scale: 0.3
+    marker_color:
+      r: 0.0
+      g: 1.0
+      b: 0.0
+      a: 1.0

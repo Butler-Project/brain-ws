@@ -30,8 +30,23 @@ This component manages high level component that:
 
 - The protocol should represent at least these states explicitly: `no_command`, `explicit_command_ready`, `implicit_command_pending_confirmation`, `confirmation_accepted`, `confirmation_rejected`, `rejected_by_rule`, and `blocked_by_system`.
 
-# Install Dependencies ( Create first you virtual enviroment before runnign this command)
+### Compiling ROS workspace
+
+# Updating Submodules manually
+```bash
+git submodule update --remote --recursive
+```
+# Dependencies
+1.- Install ROS2 Colcon for Building
+```bash
+sudo apt install -y python3-colcon-common-extensions python3-rosdep
+```
+2.- Compilation
+```bash
+source /opt/ros/jazzy/setup.bash && colcon build
+```
+### Running the optimization pipeline
+# Install Dependencies ( Create first you virtual enviroment before runnign this command) for 
 ```bash
 pip install -r requirements.txt
 ``` 
- 
