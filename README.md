@@ -1,4 +1,8 @@
 # HighLevel Reasonning
+## Overview
+
+This repo provides a modular framework for **high-level reasoning** and **autonomous task execution**.  
+The system listens to human language instructions, translates them into symbolic goals via NLU, then propagate the commands using Ros2 nodes and Nav2.
 
 This component manages high level component that:
 - Integrates LLM to translate intention from the user and it convert to specific commands
@@ -9,8 +13,36 @@ This component manages high level component that:
 - Slam node (Slam Toolbox)
 - Sensors Experts , these controls the current state of the robot sensors
 
-## General Description, responsabilities , componentes and protocol
+# General Description, responsabilities , componentes and protocol
 
+## Architecture
+
+```text
++-----------------------------+
+| Human Voice(ASR)            |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Human Text Command (NLP)    |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Translation Module (Ollama) |
+| Converts natural language   |
+| into symbolic PDDL goals.   |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| ROS2 Execution Layer        |
+| Executes plan via action    |
+| nodes and communication API |
++-----------------------------+
+```
+
+---
 ### Summary
 
 - The `LLM` should not know which `landmarks` really exist or whether they are currently available. Its job is only to extract intent and normalize parameters; real validation must happen outside the model.
