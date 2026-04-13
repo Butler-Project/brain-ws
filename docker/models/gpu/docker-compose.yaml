@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  anchonet_ai_it_expert:
+    container_name: poc_ollama_llm_container
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        MODEL: ${MODEL:-llama3.1:8b}
+    image: poc_ollama_llm_image
+    gpus: all
+    ports:
+      - "11434:11434"
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      OLLAMA_KEEP_ALIVE: 24h
+    networks:
+      - LLM_TO_ROS_NETWORK
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+networks:
+  LLM_TO_ROS_NETWORK:
+    name: LLM_TO_ROS_NETWORK
+    driver: bridge

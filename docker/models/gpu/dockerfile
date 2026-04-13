@@ -1,0 +1,36 @@
+FROM ollama/ollama:latest AS builder
+
+ARG MODEL
+ARG ROUTER_MODEL=robot-router
+
+RUN test -n "$MODEL" || (echo "ERROR: Debes pasar --build-arg MODEL=<modelo[:tag]>" && false)
+
+# Dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/*
+
+# Copy Modelfile into builder
+COPY Modelfile /tmp/Modelfile
+
+# local server to pull/create
+ENV OLLAMA_HOST=127.0.0.1:11434
+
+RUN set -eux; \
+  /bin/ollama serve & pid=$!; \
+  for i in $(seq 1 60); do curl -sf http://127.0.0.1:11434/api/tags >/dev/null && break || sleep 1; done; \
+  /bin/ollama pull "$MODEL"; \
+  BASE_MODEL="$MODEL" /bin/ollama create "$ROUTER_MODEL" -f /tmp/Modelfile; \
+  kill -TERM "$pid"; \
+  wait "$pid" || true
+
+# Final Image
+FROM ollama/ollama:latest
+
+# Listen on all interfaces
+ENV OLLAMA_HOST=0.0.0.0:11434
+
+# Copy models (includes robot-router)
+COPY --from=builder /root/.ollama /root/.ollama
+
+EXPOSE 11434
+CMD ["serve"]

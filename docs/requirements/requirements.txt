@@ -1,0 +1,5 @@
+- Model should only serve as conversational interpretation
+- Model should never know the general robot state, It is handled by internal component software serving as a gate.
+- Model should track conversation that implies "implicit" commands
+- Operative Check should not be performed by Model
+- Execution of the task should not be executed directly by the model

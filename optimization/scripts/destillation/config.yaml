@@ -1,0 +1,80 @@
+# ============================================================
+# LLM Optimization Pipeline — Configuration
+# ============================================================
+
+# --- Paths ---
+paths:
+  # Base directory for all datasets
+  dataset_dir: /home/operador/Documents/brain-ws/optimization/dataset
+
+  # Per-category dataset files (relative to dataset_dir)
+  dataset_explicit: explicit/explicit_prompts.jsonl
+  dataset_implicit: implicit/implicit_prompts.jsonl
+  dataset_natural_language: natural_language/natural_language_prompts.jsonl
+  dataset_invalids: invalids/invalid_prompts.jsonl
+
+  # Global stats
+  dataset_stats: dataset.stats.json
+
+  # Where optimized models are saved after each step
+  models_dir: /home/operador/Documents/brain-ws/optimization/models
+
+  # Where benchmark results are saved (Flywheel + Guardrails)
+  benchmark_dir: /home/operador/Documents/brain-ws/optimization/benchmarks
+
+# --- Teacher model (8B in Ollama Docker) ---
+teacher:
+  ollama_url: http://localhost:11434/api/chat
+  model_name: robot-router
+  timeout_sec: 30
+
+# --- Student model (downloaded from HuggingFace) ---
+student:
+  model_id: unsloth/Llama-3.2-1B-Instruct
+  cache_dir: /home/operador/.cache/huggingface
+
+# --- Dataset generation (Step 2) ---
+dataset:
+  seed: 42
+  max_examples: null          # null = generate all (~2500+), or set a number
+  landmarks:
+    - kitchen
+    - living_room
+    - entrance
+    - bedroom
+    - bathroom
+    - garage
+    - garden
+    - office
+    - dining_room
+    - balcony
+    - hallway
+    - basement
+    - laundry_room
+    - pantry
+    - attic
+
+# --- Training (Steps 3-4) ---
+training:
+  device: cuda                # cuda or cpu
+  batch_size: 4
+  learning_rate: 2.0e-5
+  epochs: 3
+  max_seq_length: 512
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+
+# --- OpenVINO export (Steps 5-6) ---
+openvino:
+  target_device: CPU
+  quantization_mode: INT4_ASYM
+  group_size: 128
+  ratio: 0.8                  # 80% INT4, 20% FP16
+
+# --- Deployment (Step 8) ---
+deployment:
+  server_port: 8000
+  num_streams: 1
+  docker_image: openvino/model_server:latest
+  network_name: LLM_TO_ROS_NETWORK
