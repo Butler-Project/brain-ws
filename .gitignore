@@ -51,3 +51,8 @@ virtual-envs/
 *~
 .DS_Store
 Thumbs.db
+
+docker/models/asr/nemo-parakeet_tdt_ctc_110m.onnx
+docker/models/asr/silero_vad.onnx
+docker/models/tts/glados.onnx
+docker/models/tts/phomenizer_en.onnx

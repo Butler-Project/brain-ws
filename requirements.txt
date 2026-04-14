@@ -35,3 +35,13 @@ nncf                      # Neural Network Compression (INT4 AWQ)
 matplotlib                # Pareto plot
 numpy
 jsonschema                # JSON schema validation for guardrails
+
+numpy
+onnxruntime
+sounddevice
+levenshtein
+loguru
+jinja2
+textual
+librosa
+onnx-asr[cpu,hub]
