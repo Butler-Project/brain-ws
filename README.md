@@ -66,7 +66,8 @@ This component manages high level component that:
 
 # Updating Submodules manually
 ```bash
-git submodule update --remote --recursive
+git submodule update --init --recursive &&
+git submodule update --recursive
 ```
 # Dependencies
 1.- Install ROS2 Colcon for Building
