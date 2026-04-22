@@ -44,6 +44,8 @@ jobs:
       #   - database_node
       #   - vision_node
       #   - brain_launch
+      # navigation_node is excluded because its only content is a simulation launch
+      # package with heavy deps (nav2_bringup, turtlebot3_*, cartographer_ros).
       - name: Exclude stub submodules from CI
         shell: bash
         run: |
@@ -51,6 +53,7 @@ jobs:
             rm -f "src/$pkg/package.xml"
             touch "src/$pkg/COLCON_IGNORE"
           done
+          touch "src/navigation_node/COLCON_IGNORE"
 
       - name: Resolve ROS dependencies (rosdep)
         shell: bash
@@ -61,8 +64,7 @@ jobs:
             --from-paths src \
             --ignore-src \
             --rosdistro humble \
-            -y \
-            --skip-keys "turtlebot3_gazebo turtlebot3_navigation2"
+            -y
 
       - name: colcon build
         shell: bash
@@ -99,12 +101,14 @@ jobs:
           submodules: recursive
 
       # TODO: remove entries once each submodule has valid package.xml
+      # navigation_node is excluded because its only content is a simulation launch
       - name: Exclude stub submodules from rosdep scan
         shell: bash
         run: |
           for pkg in tts_node asr_node database_node vision_node brain_launch; do
             rm -f "src/$pkg/package.xml"
           done
+          touch "src/navigation_node/COLCON_IGNORE"
 
       - name: Verify all package.xml dependencies resolve
         shell: bash
