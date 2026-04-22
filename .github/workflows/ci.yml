@@ -35,7 +35,6 @@ jobs:
             ros-humble-tf2 \
             ros-humble-tf2-ros \
             git
-          rm -rf /var/lib/apt/lists/*
 
       # TODO: remove entries once each submodule has valid package.xml
       # These submodules currently are empty which crashes rosdep:
