@@ -16,12 +16,12 @@ class UC03ExplicitShowAroundSpecific(BaseStrategy):
         "I want to see the {landmarks_text}",
         "Take me to see the {landmarks_text}",
         "Can you show me the {landmarks_text}?",
-        "Let's visit the {landmarks_text}",
         "Guide me through the {landmarks_text}",
-        "I'd like to visit the {landmarks_text}",
         # Bad grammar
         "show me {landmarks_text} plz",
         "i wanna see the {landmarks_text}",
+        "take me see {landmarks_text}",
+        "can u show {landmarks_text} pls",
     ]
 
     def generate(self):

@@ -4,8 +4,8 @@ services:
   anchonet_ai_it_expert:
     container_name: poc_ollama_llm_container
     build:
-      context: .
-      dockerfile: dockerfile
+      context: ../../..
+      dockerfile: docker/models/gpu/dockerfile
       args:
         MODEL: ${MODEL:-llama3.1:8b}
     image: poc_ollama_llm_image

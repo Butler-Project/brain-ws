@@ -7,7 +7,8 @@ Speech-to-Text errors.
 
 Produces entries for the SAME dataset as the source strategy.
 Covers: filler words, stuttering, homophones, phonetic typos,
-        dropped words, word merging, truncation, caveman grammar.
+        dropped words, word merging, truncation, caveman grammar,
+        and ASR+VAD early endpoint / bad sentence closure artifacts.
 """
 
 import random
@@ -62,6 +63,46 @@ class STTNoiseAugmenter(BaseStrategy):
         "I don't know where anything is",
     ]
 
+    # ASR + VAD gray-zone cases:
+    # the intent is still recoverable, but the endpoint is cut badly.
+    MOVE_TO_VAD_TEMPLATES = [
+        "Take me to the {landmark} and",
+        "Go to the {landmark} but",
+        "Can you take me to the {landmark} becau",
+        "I want to go to the {landmark} and uh",
+        "Bring me to the {landmark} then",
+    ]
+
+    TOUR_VAD_PHRASES = [
+        "Show me around and",
+        "Give me a tour but",
+        "I want to see everything becau",
+        "Take me on a tour and uh",
+        "Show me all the rooms then",
+    ]
+
+    CANCEL_VAD_PHRASES = [
+        "Stop the task and",
+        "Cancel but",
+        "Go back home becau",
+        "Cancel the navigation and uh",
+        "Return home then",
+    ]
+
+    IMPLICIT_MOVE_VAD_TEMPLATES = [
+        "I need to find the {landmark} but",
+        "I'm looking for the {landmark} and",
+        "Do you know where the {landmark} is becau",
+        "I have a meeting in the {landmark} and uh",
+    ]
+
+    IMPLICIT_TOUR_VAD_PHRASES = [
+        "I'm new here and",
+        "I'm not familiar with this building but",
+        "I don't know where anything is so",
+        "This is my first time here and uh",
+    ]
+
     # How many noisy variants per clean template
     VARIANTS_PER_TEMPLATE = 2
     # How many caveman grammar entries per landmark
@@ -98,7 +139,19 @@ class STTNoiseAugmenter(BaseStrategy):
                         "interpreted_explicit_command",
                         command=self.make_command("move_to", [lm]),
                     ),
-                    "caveman_move_to",
+                        "caveman_move_to",
+                    ))
+
+            # ASR + VAD early endpoint / bad closure
+            for tpl in random.sample(self.MOVE_TO_VAD_TEMPLATES, 2):
+                noisy = tpl.format(landmark=lm_human)
+                entries.append(self.entry(
+                    self.make_input(noisy),
+                    self.make_expected(
+                        "interpreted_explicit_command",
+                        command=self.make_command("move_to", [lm]),
+                    ),
+                    "vad_cut_move_to",
                 ))
 
         # ----------------------------------------------------------
@@ -131,6 +184,16 @@ class STTNoiseAugmenter(BaseStrategy):
                 "caveman_tour",
             ))
 
+        for msg in self.TOUR_VAD_PHRASES:
+            entries.append(self.entry(
+                self.make_input(msg),
+                self.make_expected(
+                    "interpreted_explicit_command",
+                    command=self.make_command("show_me_around", ["ALL_LANDMARKS"]),
+                ),
+                "vad_cut_tour",
+            ))
+
         # ----------------------------------------------------------
         # Explicit cancel — STT noise
         # ----------------------------------------------------------
@@ -159,6 +222,16 @@ class STTNoiseAugmenter(BaseStrategy):
                     command=self.make_command("Cancel"),
                 ),
                 "caveman_cancel",
+            ))
+
+        for msg in self.CANCEL_VAD_PHRASES:
+            entries.append(self.entry(
+                self.make_input(msg),
+                self.make_expected(
+                    "interpreted_explicit_command",
+                    command=self.make_command("Cancel"),
+                ),
+                "vad_cut_cancel",
             ))
 
         # ----------------------------------------------------------
@@ -204,6 +277,22 @@ class STTNoiseAugmenter(BaseStrategy):
             e["_dataset_override"] = "implicit"
             entries.append(e)
 
+        for lm in random.sample(self.landmarks, min(8, len(self.landmarks))):
+            lm_human = self.human_name(lm)
+            for tpl in random.sample(self.IMPLICIT_MOVE_VAD_TEMPLATES, 2):
+                msg = tpl.format(landmark=lm_human)
+                e = self.entry(
+                    self.make_input(msg),
+                    self.make_expected(
+                        "interpreted_implicit_command",
+                        command=self.make_command("move_to", [lm]),
+                        follow_up=self.FOLLOW_UP_CONFIRMATION,
+                    ),
+                    "vad_cut_implicit_move_to",
+                )
+                e["_dataset_override"] = "implicit"
+                entries.append(e)
+
         # ----------------------------------------------------------
         # Implicit tour — STT noise
         # ----------------------------------------------------------
@@ -238,6 +327,19 @@ class STTNoiseAugmenter(BaseStrategy):
                     follow_up=self.FOLLOW_UP_CONFIRMATION,
                 ),
                 "caveman_implicit_tour",
+            )
+            e["_dataset_override"] = "implicit"
+            entries.append(e)
+
+        for msg in self.IMPLICIT_TOUR_VAD_PHRASES:
+            e = self.entry(
+                self.make_input(msg),
+                self.make_expected(
+                    "interpreted_implicit_command",
+                    command=self.make_command("show_me_around", ["ALL_LANDMARKS"]),
+                    follow_up=self.FOLLOW_UP_CONFIRMATION,
+                ),
+                "vad_cut_implicit_tour",
             )
             e["_dataset_override"] = "implicit"
             entries.append(e)

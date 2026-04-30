@@ -4,8 +4,11 @@
 
 # --- Paths ---
 paths:
-  # Base directory for all datasets
-  dataset_dir: /home/operador/Documents/brain-ws/optimization/dataset
+  # All generated outputs for the optimization pipeline live under artifacts/
+  # so CI and local runs have a single directory to collect and publish.
+
+  # Base directory for all generated datasets
+  dataset_dir: /home/operador/Documents/brain-ws/optimization/artifacts/dataset
 
   # Per-category dataset files (relative to dataset_dir)
   dataset_explicit: explicit/explicit_prompts.jsonl
@@ -17,10 +20,13 @@ paths:
   dataset_stats: dataset.stats.json
 
   # Where optimized models are saved after each step
-  models_dir: /home/operador/Documents/brain-ws/optimization/models
+  models_dir: /home/operador/Documents/brain-ws/optimization/artifacts/models
 
-  # Where benchmark results are saved (Flywheel + Guardrails)
-  benchmark_dir: /home/operador/Documents/brain-ws/optimization/benchmarks
+  # Where benchmark results are saved
+  benchmark_dir: /home/operador/Documents/brain-ws/optimization/artifacts/benchmarks
+
+  # External manifest registry for trained models
+  manifest_dir: /home/operador/Documents/brain-ws/model/manifest
 
 # --- Teacher model (8B in Ollama Docker) ---
 teacher:
@@ -60,7 +66,7 @@ training:
   batch_size: 4
   learning_rate: 2.0e-5
   epochs: 3
-  max_seq_length: 512
+  max_seq_length: 1024        # keep this >= compact system prompt + user JSON + assistant JSON
   lora_r: 16
   lora_alpha: 32
   lora_dropout: 0.05
@@ -78,3 +84,7 @@ deployment:
   num_streams: 1
   docker_image: openvino/model_server:latest
   network_name: LLM_TO_ROS_NETWORK
+
+# --- Manifest registry ---
+manifest:
+  training_order: 2

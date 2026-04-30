@@ -4,16 +4,21 @@ Step 2: Fine-tune student model using Knowledge Distillation.
 Uses Unsloth + QLoRA + SFTTrainer to train the 1B student model
 on the teacher's validated responses.
 
-Input:  dataset/training/train.jsonl + eval.jsonl
-Output: models/<model-name>/  (LoRA adapters + merged model)
+Input:  artifacts/dataset/training/train.jsonl + eval.jsonl
+Output: artifacts/models/<model-name>/  (LoRA adapters + merged model)
+        model/manifest/<model-name>.json + model/manifest/models.json
 
 Usage:
     python train_student.py --model-name distilled-1b-robot-router
+    python train_student.py --model-name distilled-1b-robot-router --model-version v0.2.0
     python train_student.py --model-name distilled-1b-robot-router --epochs 5
     python train_student.py --model-name distilled-1b-robot-router --dry-run
 """
 
 import argparse
+import json
+import subprocess
+from datetime import datetime
 
 import torch
 from datasets import Dataset
@@ -23,6 +28,7 @@ from trl import SFTConfig, SFTTrainer
 from utils import (
     CONFIG,
     EVAL_FILE,
+    MANIFEST_DIR,
     SEED,
     STUDENT_MODEL_ID,
     TRAIN_FILE,
@@ -35,6 +41,7 @@ from utils import (
 def __parse_args():
     parser = argparse.ArgumentParser(description="Fine-tune student model via distillation")
     parser.add_argument("--model-name", required=True, help="Name for the output model directory")
+    parser.add_argument("--model-version", default=None, help="Optional version stored in the manifest")
     parser.add_argument("--epochs", type=int, default=TRAINING_CFG.get("epochs", 3))
     parser.add_argument("--batch-size", type=int, default=TRAINING_CFG.get("batch_size", 4))
     parser.add_argument("--lr", type=float, default=TRAINING_CFG.get("learning_rate", 2e-5))
@@ -198,6 +205,86 @@ def __train(model, tokenizer, train_dataset, eval_dataset, args, output_dir):
     return trainer_stats
 
 
+def __git_commit():
+    """Return the current git commit hash, or None if unavailable."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+    return result.stdout.strip() or None
+
+
+def __write_manifest(args, output_dir, train_dataset, eval_dataset):
+    """Write model manifest files outside the artifacts directory."""
+    MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
+
+    manifest = {
+        "training_order": CONFIG.get("manifest", {}).get("training_order", 2),
+        "model_name": args.model_name,
+        "model_version": args.model_version,
+        "model_kind": "distilled_student",
+        "status": "trained",
+        "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "git_commit": __git_commit(),
+        "teacher_model_name": CONFIG.get("teacher", {}).get("model_name"),
+        "student_model_id": STUDENT_MODEL_ID,
+        "dataset": {
+            "train_file": str(TRAIN_FILE),
+            "eval_file": str(EVAL_FILE),
+            "train_examples": len(train_dataset),
+            "eval_examples": len(eval_dataset) if eval_dataset else 0,
+        },
+        "training": {
+            "device": TRAINING_CFG.get("device"),
+            "seed": SEED,
+            "epochs": args.epochs,
+            "batch_size": args.batch_size,
+            "learning_rate": args.lr,
+            "max_seq_length": args.max_seq_length,
+            "lora_r": args.lora_r,
+            "lora_alpha": args.lora_alpha,
+            "lora_dropout": TRAINING_CFG.get("lora_dropout", 0.05),
+        },
+        "artifacts": {
+            "output_dir": str(output_dir),
+            "lora_dir": str(output_dir / "lora"),
+            "merged_dir": str(output_dir / "merged"),
+        },
+    }
+
+    model_manifest_path = MANIFEST_DIR / f"{args.model_name}.json"
+    with open(model_manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+
+    registry_path = MANIFEST_DIR / "models.json"
+    registry = {"models": []}
+    if registry_path.exists():
+        with open(registry_path) as f:
+            registry = json.load(f)
+        registry.setdefault("models", [])
+
+    registry["models"] = [
+        entry for entry in registry["models"]
+        if entry.get("model_name") != args.model_name
+    ]
+    registry["models"].append(manifest)
+    registry["models"].sort(
+        key=lambda item: (item.get("training_order", 9999), item.get("model_name", ""))
+    )
+
+    with open(registry_path, "w") as f:
+        json.dump(registry, f, indent=2, ensure_ascii=False)
+
+    print("\nWriting manifest...")
+    print(f"  Model manifest: {model_manifest_path}")
+    print(f"  Registry:       {registry_path}")
+
+
 def __save_model(model, tokenizer, output_dir, model_name):
     """Save LoRA adapters and merged FP16 model."""
     lora_dir = output_dir / "lora"
@@ -228,7 +315,7 @@ def main():
     output_dir = model_output_dir(args.model_name)
 
     if not TRAIN_FILE.exists():
-        print(f"ERROR: {TRAIN_FILE} not found. Run prepare_training_data.py first.")
+        print(f"ERROR: {TRAIN_FILE} not found. Run rebuild_dataset_after_validation.py first.")
         return
 
     print("=" * 60)
@@ -249,6 +336,7 @@ def main():
 
     __train(model, tokenizer, train_dataset, eval_dataset, args, output_dir)
     __save_model(model, tokenizer, output_dir, args.model_name)
+    __write_manifest(args, output_dir, train_dataset, eval_dataset)
 
 
 if __name__ == "__main__":

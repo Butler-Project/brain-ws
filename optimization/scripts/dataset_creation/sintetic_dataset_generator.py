@@ -1,18 +1,18 @@
 """
-Generate the 4 dataset JSONL files using the Strategy pattern.
+Generate the 4 synthetic dataset JSONL files using the Strategy pattern.
 
 Each Use Case has its own strategy class in strategies/.
 The orchestrator instantiates all strategies, collects entries,
 routes them to the correct dataset, and prints a coverage report.
 
 Usage:
-    python generate_datasets.py
+    python sintetic_dataset_generator.py
 
 Output files:
-  dataset/explicit/explicit_prompts.jsonl
-  dataset/implicit/implicit_prompts.jsonl
-  dataset/natural_language/natural_language_prompts.jsonl
-  dataset/invalids/invalid_prompts.jsonl
+  artifacts/dataset/explicit/explicit_prompts.jsonl
+  artifacts/dataset/implicit/implicit_prompts.jsonl
+  artifacts/dataset/natural_language/natural_language_prompts.jsonl
+  artifacts/dataset/invalids/invalid_prompts.jsonl
 """
 
 import json
@@ -148,7 +148,7 @@ def print_coverage_report(all_entries):
 def main():
     random.seed(SEED)
 
-    print("Generating datasets using Strategy pattern...\n")
+    print("Generating synthetic datasets using Strategy pattern...\n")
     print(f"Strategies registered: {len(STRATEGY_REGISTRY)}")
     print()
 

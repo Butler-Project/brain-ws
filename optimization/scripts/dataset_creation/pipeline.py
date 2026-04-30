@@ -4,8 +4,8 @@ Dataset Pipeline Manager.
 
 Orchestrates the full dataset lifecycle:
   1. clean    — Remove all generated artifacts
-  2. generate — Create prompt JSONL files (generate_datasets.py)
-  3. validate — Send prompts to 8B teacher and validate (dataset_creator.py)
+  2. generate — Create prompt JSONL files (sintetic_dataset_generator.py)
+  3. validate — Send prompts to 8B teacher and validate (teacher_dataset_evaluator.py)
   4. analyze  — Analyze invalid outputs (analyze_invalid_output.py)
 
 Usage:
@@ -27,15 +27,15 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 STEPS = {
     "clean": {
         "description": "Remove all generated artifacts",
-        "command": [sys.executable, str(SCRIPT_DIR / "dataset_creator.py"), "--clean_results"],
+        "command": [sys.executable, str(SCRIPT_DIR / "teacher_dataset_evaluator.py"), "--clean_results"],
     },
     "generate": {
         "description": "Generate prompt JSONL files from strategies",
-        "command": [sys.executable, str(SCRIPT_DIR / "generate_datasets.py")],
+        "command": [sys.executable, str(SCRIPT_DIR / "sintetic_dataset_generator.py")],
     },
     "validate": {
         "description": "Send prompts to 8B teacher and validate responses",
-        "command": [sys.executable, str(SCRIPT_DIR / "dataset_creator.py")],
+        "command": [sys.executable, str(SCRIPT_DIR / "teacher_dataset_evaluator.py")],
     },
     "analyze": {
         "description": "Analyze invalid outputs",

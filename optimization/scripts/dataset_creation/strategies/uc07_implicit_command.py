@@ -18,8 +18,24 @@ class UC07ImplicitCommand(BaseStrategy):
         "Is the {landmark} far from here?",
         "My appointment is at the {landmark}",
         "Where can I find the {landmark}?",
+        # Obligation/context — user was told or is expected to go somewhere
+        "I was told to go to the {landmark}",
+        "Someone told me to meet them at the {landmark}",
+        "I'm supposed to be at the {landmark}",
+        "I should go to the {landmark}",
         # Bad grammar (implicit)
         "where is the {landmark} at?",
+        "how i find the {landmark}?",
+        "i need find the {landmark}",
+        "i looking for {landmark}",
+        "how i get to {landmark}?",
+    ]
+
+    IMPLICIT_VISIT_TEMPLATES = [
+        # "visit" is ambiguous — could be move_to or show_me_around; treat as implicit show_me_around
+        "I'd like to visit the {landmark}",
+        "I want to visit the {landmark}",
+        "Can I visit the {landmark}?",
     ]
 
     IMPLICIT_TOUR_PHRASES = [
@@ -38,12 +54,25 @@ class UC07ImplicitCommand(BaseStrategy):
         "I could use some orientation",
         "Is there a way to see the whole building?",
         "I want to familiarize myself with this place",
+        # Lost / no destination — implies a tour
+        "I'm lost",
+        "I want to go but I don't know where",
+        "I need go but don't know where",
+        "Not sure where to go",
         # Bad grammar
         "i dont know where noting is",
         "im new here dont know nothing",
         "first time here i dont know place",
         "i never been here before",
         "can somone show me arround?",
+        "me not know where anything at",
+        "dont know this place at all",
+        "i new here where everyting",
+        "first time me here no clue",
+        "somone show me this building plz",
+        "help me im lost",
+        "i need go but dont know where",
+        "need go but not sure where",
     ]
 
     IMPLICIT_CANCEL_PHRASES = [
@@ -52,8 +81,12 @@ class UC07ImplicitCommand(BaseStrategy):
         "I don't need to go there anymore",
         "I don't want to go after all",
         "I'm not going anymore",
+        "I don't feel like going now",
         # Bad grammar
         "forget it i dont wanna go no more",
+        "dont need go there no more",
+        "i changed mind dont go",
+        "me stay here dont go",
     ]
 
     def generate(self):
@@ -73,7 +106,20 @@ class UC07ImplicitCommand(BaseStrategy):
                     "implicit_move_to",
                 ))
 
-        # Implicit show_me_around
+        # Explicit move_to — teacher consistently classifies "visit" as a direct request
+        for lm in self.landmarks:
+            for tpl in self.IMPLICIT_VISIT_TEMPLATES:
+                msg = tpl.format(landmark=self.human_name(lm))
+                entries.append(self.entry(
+                    self.make_input(msg),
+                    self.make_expected(
+                        "interpreted_explicit_command",
+                        command=self.make_command("move_to", [lm]),
+                    ),
+                    "implicit_visit",
+                ))
+
+        # Implicit show_me_around — general tour
         for msg in self.IMPLICIT_TOUR_PHRASES:
             entries.append(self.entry(
                 self.make_input(msg),

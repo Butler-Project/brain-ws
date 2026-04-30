@@ -4,8 +4,8 @@ Step 3: Export the fine-tuned student model to GGUF format.
 Converts the merged FP16 model to GGUF Q4_K_M for deployment
 on the N100 with Ollama or llama.cpp.
 
-Input:  models/<model-name>/merged/
-Output: models/<model-name>/gguf/
+Input:  artifacts/models/<model-name>/merged/
+Output: artifacts/models/<model-name>/gguf/
 
 Usage:
     python export_gguf.py --model-name distilled-1b-robot-router
@@ -72,8 +72,7 @@ def main():
     print("  GGUF EXPORT COMPLETE")
     print(f"  Files in: {gguf_dir}")
     print("=" * 60)
-    print("\nNext step: Load into Ollama with:")
-    print(f"  ollama create {args.model_name} -f <Modelfile pointing to GGUF>")
+    
 
 
 if __name__ == "__main__":
