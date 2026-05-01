@@ -13,13 +13,14 @@ import yaml
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = SCRIPT_DIR / "config.yaml"
-MODELFILE_PATH = SCRIPT_DIR.parents[2] / "docker" / "models" / "gpu" / "Modelfile"
+MODELFILE_PATH = SCRIPT_DIR.parents[2] / "model" / "system_prompt" / "MODELFILE"
 
 with open(CONFIG_PATH) as f:
     CONFIG = yaml.safe_load(f)
 
 DATASET_DIR = Path(CONFIG["paths"]["dataset_dir"])
 MODELS_DIR = Path(CONFIG["paths"]["models_dir"])
+MANIFEST_DIR = Path(CONFIG["paths"]["manifest_dir"])
 SEED = CONFIG["dataset"].get("seed", 42)
 STUDENT_MODEL_ID = CONFIG["student"]["model_id"]
 TRAINING_CFG = CONFIG["training"]
@@ -46,7 +47,7 @@ def model_output_dir(model_name):
 
 
 def extract_system_prompt():
-    """Extract the SYSTEM prompt from the Ollama ModelFile."""
+    """Extract the SYSTEM prompt from the shared MODELFILE source."""
     text = MODELFILE_PATH.read_text()
     start = text.find('SYSTEM """')
     if start == -1:

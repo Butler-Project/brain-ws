@@ -8,7 +8,7 @@ class UC01ExplicitMoveTo(BaseStrategy):
     dataset = "explicit"
 
     TEMPLATES = [
-        # Direct commands
+        # Direct imperative commands
         "Take me to the {landmark}",
         "Go to the {landmark}",
         "Navigate to the {landmark}",
@@ -31,14 +31,8 @@ class UC01ExplicitMoveTo(BaseStrategy):
         "Hey, take me to the {landmark}",
         "Go ahead and move to the {landmark}",
         "Get me to the {landmark}",
-        # Moved from UC-7 (too direct to be implicit)
-        "I was told to go to the {landmark}",
-        "Someone told me to meet them at the {landmark}",
-        "I'm supposed to be at the {landmark}",
         "I'm trying to get to the {landmark}",
-        "I'd like to visit the {landmark}",
-        "I should go to the {landmark}",
-        # Bad grammar / misspellings
+        # Bad grammar / misspellings — direct intent
         "tak me to the {landmark}",
         "go too the {landmark}",
         "i wanna go to {landmark}",
@@ -49,11 +43,21 @@ class UC01ExplicitMoveTo(BaseStrategy):
         "go to {landmark} plz",
         "i want go {landmark}",
         "bring me {landmark}",
-        # Bad grammar — moved from UC-7
         "i must go {landmark}",
-        "i need find the {landmark}",
-        "i looking for {landmark}",
-        "how i get to {landmark}?",
+        "take me {landmark} now",
+        "go {landmark} pleasee",
+        "need go to {landmark}",
+        "u take me {landmark}?",
+        "bring me to {landmark} now plz",
+        "move to tha {landmark}",
+        "i gotta go {landmark}",
+        "tak me {landmark} quick",
+        "go me to {landmark}",
+        "can u go with me to {landmark}",
+        "i needa get to {landmark}",
+        "want go {landmark} rn",
+        "take me over to {landmark} pls",
+        "me need go {landmark}",
     ]
 
     def generate(self):

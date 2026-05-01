@@ -33,6 +33,9 @@ class UC01bExplicitMoveToUnknownLandmark(BaseStrategy):
         "tak me to the {landmark}",
         "go too {landmark}",
         "i wanna go {landmark}",
+        "take me {landmark} plz",
+        "need go {landmark}",
+        "u take me to {landmark}",
     ]
 
     def generate(self):

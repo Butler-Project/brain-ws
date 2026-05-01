@@ -9,17 +9,19 @@ RUN test -n "$MODEL" || (echo "ERROR: Debes pasar --build-arg MODEL=<modelo[:tag
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy Modelfile into builder
-COPY Modelfile /tmp/Modelfile
+# Copy the shared MODELFILE source and materialize an Ollama Modelfile from it.
+COPY model/system_prompt/MODELFILE /tmp/MODELFILE
 
 # local server to pull/create
 ENV OLLAMA_HOST=127.0.0.1:11434
 
 RUN set -eux; \
+  printf 'FROM %s\n' "$MODEL" > /tmp/Modelfile; \
+  cat /tmp/MODELFILE >> /tmp/Modelfile; \
   /bin/ollama serve & pid=$!; \
   for i in $(seq 1 60); do curl -sf http://127.0.0.1:11434/api/tags >/dev/null && break || sleep 1; done; \
   /bin/ollama pull "$MODEL"; \
-  BASE_MODEL="$MODEL" /bin/ollama create "$ROUTER_MODEL" -f /tmp/Modelfile; \
+  /bin/ollama create "$ROUTER_MODEL" -f /tmp/Modelfile; \
   kill -TERM "$pid"; \
   wait "$pid" || true
 

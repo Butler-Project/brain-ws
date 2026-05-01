@@ -39,6 +39,11 @@ class UC04ExplicitCancel(BaseStrategy):
         "go bak home",
         "plz stop",
         "stopp the task",
+        "stopp now plz",
+        "cancel it pls",
+        "go home noww",
+        "abortt the task",
+        "bring me bak home",
     ]
 
     def generate(self):

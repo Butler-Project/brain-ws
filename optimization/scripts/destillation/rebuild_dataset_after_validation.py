@@ -4,10 +4,10 @@ Step 1: Prepare training data for Knowledge Distillation.
 Reads the teacher's *_results.jsonl files, filters VALID entries only,
 and converts them to the chat format expected by Unsloth SFTTrainer.
 
-Output: dataset/training/train.jsonl + eval.jsonl (90/10 split)
+Output: artifacts/dataset/training/train.jsonl + eval.jsonl (90/10 split)
 
 Usage:
-    python prepare_training_data.py
+    python rebuild_dataset_after_validation.py
 """
 
 import json

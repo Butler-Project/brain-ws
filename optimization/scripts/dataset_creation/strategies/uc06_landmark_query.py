@@ -24,6 +24,9 @@ class UC06LandmarkQuery(BaseStrategy):
         "wat places u know?",
         "where can u take me?",
         "wat rooms is here?",
+        "which place u got?",
+        "tell me wat rooms here",
+        "what location u know?",
     ]
 
     def generate(self):

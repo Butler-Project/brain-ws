@@ -8,6 +8,7 @@ class UC08Clarification(BaseStrategy):
     dataset = "natural_language"
 
     PHRASES = [
+        # No destination specified — needs clarification
         "Take me there",
         "I want to go",
         "Go",
@@ -16,29 +17,39 @@ class UC08Clarification(BaseStrategy):
         "Show me that room",
         "The one on the left",
         "Over there",
-        "I'm lost",
         "I need help",
         "That place I mentioned",
         "You know where",
         "The usual place",
         "Somewhere nice",
-        "I want to go but I don't know where",
-        # Bad grammar
+        # Bad grammar — no destination
         "take me ther",
         "i wanna go somwhere",
-        "help me im lost",
         "where i go?",
-        "i need go but dont know where",
-        # Ambiguous intent — could be cancel but unclear without context
+        "take me some place plz",
+        "i go where now?",
+        "help me find somwhere",
+        "dont know were to go",
+        # ASR + VAD bad endpoint / incomplete sentence
+        "take me to the",
+        "go to the",
+        "show me the",
+        "can you take me to the",
+        "i need to go to the",
+        "i'm looking for the",
+        "i need to find the",
+        "show me the room and",
+        "take me on a",
+        "go back to the",
+        "cancel the",
+        # Ambiguous soft-cancel — unclear without context, no pending command
         "Actually, I changed my mind",
         "Never mind, I'll find it myself",
         "I think I'll just stay here",
         "You know what, forget about it",
         "Let me stay where I am",
-        "I don't feel like going now",
-        # Bad grammar ambiguous
         "nevermind i stay here",
-        "i changed mind dont go",
+        "nah i stay put now",
     ]
 
     def generate(self):

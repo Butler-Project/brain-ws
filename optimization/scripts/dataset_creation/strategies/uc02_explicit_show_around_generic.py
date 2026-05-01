@@ -34,6 +34,11 @@ class UC02ExplicitShowAroundGeneric(BaseStrategy):
         "i want see everthing",
         "take me on toor plz",
         "can u show me arround?",
+        "show all place plz",
+        "i wanna tour the building",
+        "lets do toor",
+        "show me every room pls",
+        "u can show me all?",
     ]
 
     def generate(self):

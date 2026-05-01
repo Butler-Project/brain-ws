@@ -1,16 +1,19 @@
-# Launch Ollama docker from command line interface
+# GPU Ollama Image
+
+This image builds the `robot-router` Ollama model from the shared source at
+`model/system_prompt/MODELFILE`.
+
+Run from the repo root:
+
 ```bash
-#first clean all images and containners
-sudo docker stop $(docker ps -q) &&
-sudo docker rm $(docker ps -aq) &&
-sudo docker rmi -f $(docker images -aq) &&
-sudo docker volume rm $(docker volume ls -q) &&
-sudo docker network rm $(docker network ls -q) &&
-cd /home/operador/Documents/kamerdyner-dev &&
-sudo docker compose -f ci-scripts/dockerfiles/ollama/docker-compose.yaml up -d --build
+cd /home/operador/Documents/brain-ws &&
+docker compose -f docker/models/gpu/docker-compose.yaml build --no-cache &&
+docker compose -f docker/models/gpu/docker-compose.yaml up -d &&
+cd /home/operador/Documents/brain-ws/optimization/scripts/destillation &&
+python3 optimization/scripts/dataset_creation/sintetic_dataset_generator.py &&
+python3 scripts/dataset_creation/teacher_dataset_evaluator.py -c all
 ```
-# Run all
-```bash
-cd /home/operador/Documents/brain-ws/docker/model &&
-sudo docker compose down -v && sudo docker compose build --no-cache --progress=plain && sudo docker compose up -d
-```
+
+The compose file uses the repo root as build context so the Docker build can read
+`model/system_prompt/MODELFILE` and generate the final Ollama `Modelfile` with
+the selected base model from `MODEL`.
